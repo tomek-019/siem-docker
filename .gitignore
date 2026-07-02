@@ -1,0 +1,2 @@
+wazuh-docker/single-node/config/wazuh_indexer_ssl_certs/
+wazuh-docker/single-node/.certs-generated

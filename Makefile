@@ -8,14 +8,13 @@ CERTS_DONE    := $(WAZUH_DIR)/.certs-generated
 
 COMPOSE       := docker compose -f $(COMPOSE_FILE)
 
-.PHONY: help up down clean certs logs ps restart
+.PHONY: help up down clean certs logs restart
 
 help:
 	@echo "make up       - wygeneruj certy (jeśli brak) i postaw stack"
 	@echo "make down     - zatrzymaj kontenery (certy i dane zostają)"
-	@echo "make clean    - usuń kontenery, wolumeny ORAZ certy (pełny reset)"
+	@echo "make clean    - usuń kontenery, wolumeny ORAZ certy (WYMAGA SUDO)"
 	@echo "make logs     - pokaż logi na żywo"
-	@echo "make ps       - status kontenerów"
 	@echo "make restart  - down + up"
 
 certs:
@@ -49,7 +48,4 @@ clean:
 logs:
 	$(COMPOSE) logs -f
 
-ps:
-	$(COMPOSE) ps
-
-restart: down upn
+restart: down up
