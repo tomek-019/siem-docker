@@ -1,0 +1,7 @@
+services:
+  juiceshop:
+    image: bkimminich/juice-shop
+    container_name: juiceshop
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
