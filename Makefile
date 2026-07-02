@@ -1,12 +1,15 @@
-WAZUH_DIR     := wazuh-docker/single-node
+WAZUH_DIR           := wazuh-docker/single-node
+JUICE_DIR           := juiceshop-docker
 
-COMPOSE_FILE  := $(WAZUH_DIR)/docker-compose.yml
-CERTS_COMPOSE := $(WAZUH_DIR)/generate-indexer-certs.yml
+WAZUH_COMPOSE_FILE  := $(WAZUH_DIR)/docker-compose.yml
+JUICE_COMPOSE_FILE  := $(JUICE_DIR)/docker-compose.yml
 
-CERTS_DIR     := $(WAZUH_DIR)/config/wazuh_indexer_ssl_certs
-CERTS_DONE    := $(WAZUH_DIR)/.certs-generated
+CERTS_COMPOSE       := $(WAZUH_DIR)/generate-indexer-certs.yml
+CERTS_DIR           := $(WAZUH_DIR)/config/wazuh_indexer_ssl_certs
+CERTS_DONE          := $(WAZUH_DIR)/.certs-generated
 
-COMPOSE       := docker compose -f $(COMPOSE_FILE)
+WAZUH_COMPOSE       := docker compose -f $(WAZUH_COMPOSE_FILE)
+JUICE_COMPOSE       := docker compose -f $(JUICE_COMPOSE_FILE)
 
 .PHONY: help up down clean certs logs restart
 
@@ -33,19 +36,23 @@ up: certs
 		exit 1; \
 	fi
 	@echo ">> Stawiam stack..."
-	$(COMPOSE) up -d
-	@echo ">> Gotowe. Dashboard: https://localhost (admin / SecretPassword)"
+	$(WAZUH_COMPOSE) up -d
+	@echo ">> Stawiam juiceshop..."
+	$(JUICE_COMPOSE) up -d
+	@echo ">> Wazuh dashboard: https://localhost (admin / SecretPassword)"
+	@echo ">> Juiceshop: http://localhost:3000"
 
 down:
-	$(COMPOSE) down
+	$(WAZUH_COMPOSE) down
+	$(JUICE_COMPOSE) down
 
 clean:
-	$(COMPOSE) down -v
+	$(WAZUH_COMPOSE) down -v
 	@echo ">> Usuwam certyfikaty..."
 	rm -rf $(CERTS_DIR)
 	rm -f $(CERTS_DONE)
 
 logs:
-	$(COMPOSE) logs -f
+	$(WAZUH_COMPOSE) logs -f
 
 restart: down up
