@@ -52,7 +52,10 @@ clean:
 	rm -rf $(CERTS_DIR)
 	rm -f $(CERTS_DONE)
 
-logs:
+logs_wazuh:
 	$(WAZUH_COMPOSE) logs -f
+
+logs_juice:
+	$(JUICE_COMPOSE) logs -f
 
 restart: down up
