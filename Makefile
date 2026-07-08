@@ -17,40 +17,40 @@ SIEM_NET	    := siem-net
 
 help:
 	@echo "make up       - wygeneruj certy (jeśli brak) i postaw stack"
-	@echo "make down     - zatrzymaj kontenery (certy i dane zostają)"
-	@echo "make clean    - usuń kontenery, wolumeny ORAZ certy (WYMAGA SUDO)"
-	@echo "make logs     - pokaż logi na żywo"
+	@echo "make down     - zatrzymaj kontenery"
+	@echo "make clean    - usuń kontenery, wolumeny, certy i sieć (WYMAGA SUDO)"
+	@echo "make logs_wazuh     - pokaż logi na żywo"
+	@echo "make logs_juice     - pokaż logi na żywo"
 	@echo "make restart  - down + up"
 
 net:
 	@if ! docker network inspect $(SIEM_NET) >/dev/null 2>&1; then \
-		echo ">> Tworzę sieć $(SIEM_NET)..."; \
+		echo "[+] Tworzę sieć $(SIEM_NET)..."; \
 		docker network create $(SIEM_NET); \
 	else \
-		echo ">> Sieć $(SIEM_NET) już istnieje, pomijam."; \
+		echo "[+] Sieć $(SIEM_NET) już istnieje, pomijam."; \
 	fi
 
 certs:
 	@if [ ! -f "$(CERTS_DONE)" ]; then \
-		echo ">> Katalog certyfikatow pusty - generuję certyfikaty..."; \
+		echo "[+] Katalog certyfikatow pusty - generuję certyfikaty..."; \
 		docker compose -f $(CERTS_COMPOSE) run --rm generator; \
 		touch $(CERTS_DONE); \
 	else \
-		echo ">> Certyfikaty już istnieją, pomijam."; \
+		echo "[+] Certyfikaty już istnieją, pomijam."; \
 	fi
 
 up: certs net
-	@echo ">> Sprawdzam vm.max_map_count..."
+	@echo "[+] Sprawdzam vm.max_map_count..."
 	@if [ "$$(sysctl -n vm.max_map_count)" -lt 262144 ]; then \
-		echo ">> vm.max_map_count jest mniejsze niż 262144. Zmien za pomoca: sudo sysctl -w vm.max_map_count=262144"; \
+		echo "[+] vm.max_map_count jest mniejsze niż 262144. Zmien za pomoca: sudo sysctl -w vm.max_map_count=262144"; \
 		exit 1; \
 	fi
-	@echo ">> Stawiam stack..."
+	@echo "[+] Stawiam stack..."
 	$(WAZUH_COMPOSE) up -d
-	@echo ">> Stawiam juiceshop..."
+	@echo "[+] Stawiam juiceshop..."
 	$(JUICE_COMPOSE) up -d
-	@echo ">> Wazuh dashboard: https://localhost (admin / SecretPassword)"
-	@echo ">> Juiceshop: http://localhost:3000"
+	@echo "[+] Wazuh dashboard: https://localhost (admin / SecretPassword)"
 
 down:
 	$(WAZUH_COMPOSE) down
@@ -58,7 +58,7 @@ down:
 
 clean:
 	$(WAZUH_COMPOSE) down -v
-	@echo ">> Usuwam certyfikaty..."
+	@echo "[+] Usuwam certyfikaty..."
 	rm -rf $(CERTS_DIR)
 	rm -f $(CERTS_DONE)
 	-docker network rm $(SIEM_NET)
